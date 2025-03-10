@@ -1,0 +1,24 @@
+PODS:
+  - Kingfisher (8.1.4)
+  - SnapKit (5.6.0)
+  - SwiftGifOrigin (1.7.0)
+
+DEPENDENCIES:
+  - Kingfisher
+  - SnapKit
+  - SwiftGifOrigin (~> 1.7.0)
+
+SPEC REPOS:
+  trunk:
+    - Kingfisher
+    - SnapKit
+    - SwiftGifOrigin
+
+SPEC CHECKSUMS:
+  Kingfisher: a5cc3d8689cd40d7cb2edfa67a5ede0b53122813
+  SnapKit: e01d52ebb8ddbc333eefe2132acf85c8227d9c25
+  SwiftGifOrigin: fbd6cf37afcfcf97a5c3db996ddc0492e5c5c145
+
+PODFILE CHECKSUM: 12a8558ee8cf22b3a11e2e88e04067b0e2b98f53
+
+COCOAPODS: 1.14.2
