@@ -24,6 +24,7 @@ class CharacterTableViewCell: UITableViewCell {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 18, weight: .bold)
         label.textColor = .black
+        label.numberOfLines = 0
         return label
     }()
     
@@ -37,21 +38,23 @@ class CharacterTableViewCell: UITableViewCell {
     }
     
     private func setupUI() {
-        // Добавляем элементы на ячейку
+        // Добавляем элементы
         contentView.addSubview(characterImageView)
         contentView.addSubview(nameLabel)
         
-        // Верстка с помощью SnapKit
         characterImageView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(16)
-            make.centerY.equalToSuperview()
-            make.width.height.equalTo(200)
+            make.top.equalToSuperview().offset(16)
+            make.width.equalTo(100)
+            make.height.equalTo(100).priority(.high)
+            make.bottom.lessThanOrEqualToSuperview().offset(-16)
         }
         
         nameLabel.snp.makeConstraints { make in
             make.leading.equalTo(characterImageView.snp.trailing).offset(16)
             make.trailing.equalToSuperview().offset(-16)
-            make.centerY.equalToSuperview()
+            make.top.equalTo(characterImageView.snp.top)
+            make.bottom.lessThanOrEqualToSuperview().offset(-16)
         }
     }
     

@@ -7,29 +7,37 @@
 
 import UIKit
 import Combine
-import Kingfisher
+import SwiftGifOrigin
 import SwiftUI
+
 
 class CharacterListViewController: UIViewController {
     private var tableView = UITableView()
-    private var characters: [Character] = [] // Исходный массив персонажей
-    private var filteredCharacters: [Character] = [] // Отфильтрованный массив
+    private var characters: [Character] = []
+    private var filteredCharacters: [Character] = []
     private var cancellables = Set<AnyCancellable>()
     private let searchController = UISearchController(searchResultsController: nil)
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupTableView()
+        setupUI()
         setupSearchController()
         fetchCharacters()
     }
     
-    private func setupTableView() {
+    private func setupUI() {
+        // Настройка таблицы
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.register(CharacterTableViewCell.self, forCellReuseIdentifier: CharacterTableViewCell.reuseIdentifier)
         view.addSubview(tableView)
-        tableView.frame = view.bounds
+        tableView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        
+        // Включаем динамическую высоту ячейки
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 200
     }
     
     private func setupSearchController() {
@@ -39,7 +47,7 @@ class CharacterListViewController: UIViewController {
         navigationItem.searchController = searchController
         definesPresentationContext = true
         
-        // Добавляем сегментированный контрол для фильтрации по статусу
+        // UISegmentControl для фильтрации по статусу
         let statusFilter = UISegmentedControl(items: ["All", "Alive", "Dead", "Unknown"])
         statusFilter.addTarget(self, action: #selector(statusFilterChanged(_:)), for: .valueChanged)
         statusFilter.selectedSegmentIndex = 0
@@ -50,7 +58,7 @@ class CharacterListViewController: UIViewController {
         RickAndMortyService.shared.fetchCharacters()
             .sink(receiveCompletion: { _ in }, receiveValue: { [weak self] characters in
                 self?.characters = characters
-                self?.filteredCharacters = characters // Изначально отображаем всех персонажей
+                self?.filteredCharacters = characters
                 self?.tableView.reloadData()
             })
             .store(in: &cancellables)
@@ -71,6 +79,23 @@ class CharacterListViewController: UIViewController {
         }
         tableView.reloadData()
     }
+    
+    private func showFullScreenLoaderAndNavigate(to character: Character) {
+        // Создаем и показываем FullScreenLoaderView
+        let loaderView = FullScreenLoaderView(frame: view.bounds)
+        view.addSubview(loaderView)
+        
+        // Задержка 2 секунды перед переходом
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+            // Убираем лоадер
+            loaderView.removeFromSuperview()
+            
+            // Переходим на CharacterDetailView
+            let detailView = CharacterDetailView(character: character)
+            let hostingController = UIHostingController(rootView: detailView)
+            self?.navigationController?.pushViewController(hostingController, animated: true)
+        }
+    }
 }
 
 // MARK: - UITableViewDelegate & UITableViewDataSource
@@ -80,25 +105,17 @@ extension CharacterListViewController: UITableViewDelegate, UITableViewDataSourc
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        let character = filteredCharacters[indexPath.row]
-        
-        // Устанавливаем имя персонажа
-        cell.textLabel?.text = character.name
-        
-        // Загружаем изображение с помощью Kingfisher
-        if let imageURL = URL(string: character.image) {
-            cell.imageView?.kf.setImage(with: imageURL, placeholder: UIImage(systemName: "person.fill"))
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: CharacterTableViewCell.reuseIdentifier, for: indexPath) as? CharacterTableViewCell else {
+            return UITableViewCell()
         }
-        
+        let character = filteredCharacters[indexPath.row]
+        cell.configure(with: character)
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let character = filteredCharacters[indexPath.row]
-        let detailView = CharacterDetailView(character: character)
-        let hostingController = UIHostingController(rootView: detailView)
-        navigationController?.pushViewController(hostingController, animated: true)
+        showFullScreenLoaderAndNavigate(to: character)
     }
 }
 
@@ -106,8 +123,16 @@ extension CharacterListViewController: UITableViewDelegate, UITableViewDataSourc
 extension CharacterListViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         let searchText = searchController.searchBar.text
-        let selectedStatus = (navigationItem.titleView as? UISegmentedControl)?.titleForSegment(at: (navigationItem.titleView as? UISegmentedControl)?.selectedSegmentIndex ?? 0) ?? "All"
-        filterCharacters(searchText: searchText, status: selectedStatus)
+        filterCharacters(searchText: searchText)
+    }
+    
+    private func filterCharacters(searchText: String?) {
+        if let searchText = searchText, !searchText.isEmpty {
+            filteredCharacters = characters.filter { $0.name.lowercased().contains(searchText.lowercased()) }
+        } else {
+            filteredCharacters = characters
+        }
+        tableView.reloadData()
     }
 }
 

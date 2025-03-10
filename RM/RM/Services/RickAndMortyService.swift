@@ -21,4 +21,13 @@ class RickAndMortyService {
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
+    
+    func fetchEpisode(url: String) -> AnyPublisher<Episode, Error> {
+        let url = URL(string: url)!
+        return URLSession.shared.dataTaskPublisher(for: url)
+            .map(\.data)
+            .decode(type: Episode.self, decoder: JSONDecoder())
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
+    }
 }
