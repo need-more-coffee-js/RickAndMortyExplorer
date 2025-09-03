@@ -19,7 +19,7 @@ iOS-приложение на **Swift** с архитектурой **MVVM**, к
 - **Swift, UIKit**  
 - **MVVM**  
 - **URLSession / API-клиент**  
-- ** SnapKit**  
+- **SnapKit**  
 
 ---
 
@@ -27,7 +27,7 @@ iOS-приложение на **Swift** с архитектурой **MVVM**, к
 
 | Список персонажей | Детали персонажа | Экран загрузки | Поиск |
 |------------------|------------------|------------------|------------------|
-| ![Character List](./Screenshots/main.png) | ![Character Detail](./Screenshots/detail.png) | ![Loading](./Screenshots/loading.png) | ![Search Bar](./Screenshots/searchbar.png)
+| ![Character List](./Screenshots/main.png) | ![Character Detail](./Screenshots/details.png) | ![Loading](./Screenshots/loading.png) | ![Search Bar](./Screenshots/searchbar.png)
 
 ---
 
